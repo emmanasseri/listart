@@ -31,7 +31,7 @@ const theme = extendTheme({
   components: {
     Heading: {
       baseStyle: {
-        fontSize: "lg", // Now using 'xl' for all headings by default
+        fontSize: "md", // Now using 'xl' for all headings by default
         fontWeight: "900",
       },
     },

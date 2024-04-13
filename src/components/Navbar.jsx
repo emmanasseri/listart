@@ -48,7 +48,7 @@ const Navbar = () => {
           alignItems="center"
           flexGrow={1}
         >
-          {["list", "tap", "about", "browse"].map((item) => (
+          {["list", "tap", "browse"].map((item) => (
             <Link href={`/${item}`} key={item} passHref>
               <Button variant="outline" m={2} _hover={{ bg: "whiteAlpha.300" }}>
                 {item.charAt(0).toUpperCase() + item.slice(1)}
@@ -60,7 +60,7 @@ const Navbar = () => {
 
       {isOpen && (
         <Box pb={4} display={{ md: "none" }}>
-          {["list", "tap", "about", "browse"].map((item) => (
+          {["list", "tap", "browse"].map((item) => (
             <Link href={`/${item}`} key={item} passHref>
               <Button
                 w="100%"
