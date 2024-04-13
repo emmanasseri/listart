@@ -14,18 +14,21 @@ import {
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
 import { ethers } from "ethers";
-import contractABI from "../../abis/contractABI.json";
+//import contractABI from "../../abis/contractABI.json";
 import { useXRPLEVM } from "@/contexts/XRPL_EVM_context";
 
 const Minter = ({ isOpen, onClose }) => {
+  const {
+    isMetaMaskInstalled,
+    walletConnected,
+    connectWallet,
+    checkIsOnXRPLEVMSidechain,
+    addXRPLEVMSidechain,
+  } = useXRPLEVM();
+
   const [file, setFile] = useState(null);
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
-  const {
-    isMetaMaskInstalled,
-    addXRPLEVMSidechain,
-    checkIsOnXRPLEVMSidechain,
-  } = useXRPLEVM();
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/jpeg, image/png",
@@ -62,55 +65,50 @@ const Minter = ({ isOpen, onClose }) => {
   };
 
   const handleMint = async () => {
-    if (!file) {
-      console.log("No file selected to mint!");
-      return;
-    }
-
-    if (!isMetaMaskInstalled) {
-      console.log("MetaMask is not installed!");
-      return;
-    }
-
-    // Check if the user is on the Amoy network
-    if (!checkIsOnXRPLEVMSidechain()) {
-      console.log("You're not connected to the Amoy network!");
-      // Prompt user to switch to the Amoy network
-      await addXRPLEVMSidechain();
-      return; // Optionally, you could stop the function here or recheck the network
-    }
-
-    const metadataURI = await uploadToIPFS(file);
-    if (!metadataURI) {
-      console.log("File upload to IPFS failed");
-      return;
-    }
-
-    // Proceed with getting the provider and signer from ethers as you have MetaMask and are connected to Amoy
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-    const contract = new ethers.Contract(
-      contractAddress,
-      contractABI.abi,
-      signer
-    );
-
-    try {
-      const userAddress = await signer.getAddress();
-      const mintTx = await contract.mintNFT(
-        userAddress,
-        metadataURI,
-        name,
-        label
-      );
-
-      await mintTx.wait();
-      console.log("NFT minted! Transaction: ", mintTx.hash);
-      onClose();
-    } catch (error) {
-      console.error("Minting failed: ", error);
-    }
+    console.log("Minting NFT");
+    // if (!file) {
+    //   console.log("No file selected to mint!");
+    //   return;
+    // }
+    // if (!isMetaMaskInstalled) {
+    //   console.log("MetaMask is not installed!");
+    //   return;
+    // }
+    // // Check if the user is on the Amoy network
+    // if (!checkIsOnXRPLEVMSidechain()) {
+    //   console.log("You're not connected to the Amoy network!");
+    //   // Prompt user to switch to the Amoy network
+    //   await addXRPLEVMSidechain();
+    //   return; // Optionally, you could stop the function here or recheck the network
+    // }
+    // const metadataURI = await uploadToIPFS(file);
+    // if (!metadataURI) {
+    //   console.log("File upload to IPFS failed");
+    //   return;
+    // }
+    // // Proceed with getting the provider and signer from ethers as you have MetaMask and are connected to Amoy
+    // const provider = new ethers.BrowserProvider(window.ethereum);
+    // const signer = await provider.getSigner();
+    // const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+    // const contract = new ethers.Contract(
+    //   contractAddress,
+    //   contractABI.abi,
+    //   signer
+    // );
+    // try {
+    //   const userAddress = await signer.getAddress();
+    //   const mintTx = await contract.mintNFT(
+    //     userAddress,
+    //     metadataURI,
+    //     name,
+    //     label
+    //   );
+    //   await mintTx.wait();
+    //   console.log("NFT minted! Transaction: ", mintTx.hash);
+    //   onClose();
+    // } catch (error) {
+    //   console.error("Minting failed: ", error);
+    // }
   };
 
   return (

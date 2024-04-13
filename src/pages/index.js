@@ -14,7 +14,17 @@ export default function Home() {
         align="center" // Align items vertically in the center
         justify="center" // Align items horizontally in the center
       >
-        <TypingAnimation />
+        <Box
+          display="flex" // Use flexbox to center content
+          alignItems="center" // Center-align children horizontally
+          justifyContent="center" // Center-align children vertically
+          height="10vh" // Set a fixed height for the container
+          width="auto" // Width automatically adjusts to content
+          position="relative" // Use relative for Image component positioning
+          p={5}
+        >
+          <TypingAnimation />
+        </Box>
       </Flex>
       <About />
     </>
