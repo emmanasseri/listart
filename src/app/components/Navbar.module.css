@@ -1,0 +1,46 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+    position: relative;
+  }
+  
+  .rightMenu,
+  .drawer {
+    display: flex;
+    align-items: center;
+  }
+  
+  .drawer {
+    flex-direction: column;
+    background-color: #1A202C; /* Adjusted to a dark theme */
+    border: 2px solid #FFF; /* White border */
+  }
+  
+  .drawerItem a {
+    color: white;
+    padding: 10px;
+    margin: 5px 0;
+    display: block;
+  }
+  
+  .hamburger {
+    display: none;
+    font-size: 1.5em;
+    cursor: pointer;
+  }
+  
+  /* Media Queries */
+  @media (max-width: 768px) {
+    .rightMenu {
+      display: none;
+    }
+  
+    .hamburger,
+    .drawer {
+      display: block;
+    }
+  }
+  
