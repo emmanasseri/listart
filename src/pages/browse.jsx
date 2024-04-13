@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SimpleGrid } from "@chakra-ui/react";
-import ArtListing from "./ArtListing";
+import ArtListing from "../components/ArtListing";
 
 const Browse = () => {
   const [artListings, setArtListings] = useState([]);
@@ -28,21 +28,24 @@ const Browse = () => {
   }, []);
 
   return (
-    <SimpleGrid columns={3} spacing={10}>
-      {artListings.map((art, index) => (
-        <ArtListing
-          key={index}
-          imageUrl={art.imageUrl}
-          title={art.title}
-          artistNames={art.artistNames}
-          medium={art.medium}
-          description={art.description}
-          cost={art.cost}
-          owner={art.owner}
-          royalties={art.royalties}
-        />
-      ))}
-    </SimpleGrid>
+    <>
+      Browse
+      <SimpleGrid columns={3} spacing={10}>
+        {artListings.map((art, index) => (
+          <ArtListing
+            key={index}
+            imageUrl={art.imageUrl}
+            title={art.title}
+            artistNames={art.artistNames}
+            medium={art.medium}
+            description={art.description}
+            cost={art.cost}
+            owner={art.owner}
+            royalties={art.royalties}
+          />
+        ))}
+      </SimpleGrid>
+    </>
   );
 };
 

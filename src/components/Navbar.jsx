@@ -7,8 +7,6 @@ import {
   Button,
   Image,
   useBreakpointValue,
-  MenuList,
-  MenuItem,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 
@@ -22,7 +20,7 @@ const Navbar = () => {
     <Flex
       as="nav"
       align="center"
-      justify="flex-end" // Ensure everything aligns to the end
+      justify="flex-end"
       wrap="wrap"
       padding="1rem"
       bg="transparent"
@@ -36,14 +34,14 @@ const Navbar = () => {
       </Flex>
 
       {isMobile ? (
-        <Box display={{ base: "block", md: "none" }} onClick={handleToggle}>
-          <IconButton
-            icon={<HamburgerIcon />}
-            variant="outline"
-            aria-label="Open Menu"
-            size="lg"
-          />
-        </Box>
+        <IconButton
+          icon={<HamburgerIcon />}
+          variant="outline"
+          aria-label="Open Menu"
+          size="lg"
+          onClick={handleToggle}
+          display={{ base: "block", md: "none" }}
+        />
       ) : (
         <Box
           display={{ base: "none", md: "flex" }}
@@ -62,15 +60,19 @@ const Navbar = () => {
 
       {isOpen && (
         <Box pb={4} display={{ md: "none" }}>
-          <MenuList>
-            {["list", "tap", "about", "browse"].map((item) => (
-              <MenuItem key={item} onClick={() => setIsOpen(false)}>
-                <Link href={`/${item}`} passHref>
-                  {item.charAt(0).toUpperCase() + item.slice(1)}
-                </Link>
-              </MenuItem>
-            ))}
-          </MenuList>
+          {["list", "tap", "about", "browse"].map((item) => (
+            <Link href={`/${item}`} key={item} passHref>
+              <Button
+                w="100%"
+                justifyContent="flex-start"
+                variant="ghost"
+                onClick={() => setIsOpen(false)}
+                as="a"
+              >
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </Button>
+            </Link>
+          ))}
         </Box>
       )}
     </Flex>
