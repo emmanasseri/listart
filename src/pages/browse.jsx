@@ -10,7 +10,7 @@ const Browse = () => {
     const fetchData = async () => {
       const data = [
         {
-          imageUrl: "https://example.com/art1.jpg",
+          imageUrl: "/temp_image.png",
           title: "Sunset Boulevard",
           artistNames: ["Alice Johnson", "Bob Smith"],
           medium: "Oil on Canvas",
@@ -29,7 +29,6 @@ const Browse = () => {
 
   return (
     <>
-      Browse
       <SimpleGrid columns={3} spacing={10}>
         {artListings.map((art, index) => (
           <ArtListing

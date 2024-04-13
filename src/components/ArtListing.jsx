@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Image, Text, Stack, Heading } from "@chakra-ui/react";
+import { Box, Image, Text, Badge, Stack, Heading } from "@chakra-ui/react";
 
 const ArtListing = ({
   imageUrl,
@@ -21,10 +21,10 @@ const ArtListing = ({
             New
           </Badge>
           <Box
-            color="gray.500"
+            color="gray.200"
             fontWeight="semibold"
             letterSpacing="wide"
-            fontSize="xs"
+            fontSize="sm"
             textTransform="uppercase"
             ml="2"
           >
@@ -32,12 +32,13 @@ const ArtListing = ({
           </Box>
         </Box>
 
-        <Heading size="md" my="2">
+        <Heading size="15px" my="2">
           {title}
         </Heading>
 
-        <Text fontWeight="bold">Artist(s): {artistNames.join(", ")}</Text>
+        <Text fontWeight="bold">{artistNames.join(", ")}</Text>
         <Text mt={1}>{description}</Text>
+        <Text>Owned by {owner}</Text>
         <Stack
           mt={2}
           direction="row"
@@ -45,9 +46,8 @@ const ArtListing = ({
           alignItems="center"
         >
           <Text fontWeight="bold">${cost}</Text>
-          <Text>Owner: {owner}</Text>
+          <Text fontSize="sm">Royalties: {royalties}%</Text>
         </Stack>
-        <Text fontSize="sm">Royalties: {royalties}%</Text>
       </Box>
     </Box>
   );
