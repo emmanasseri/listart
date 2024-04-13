@@ -14,11 +14,6 @@ const Footer = () => {
       <Text fontSize="sm" marginBottom="2">
         Made @ HACKKU24
       </Text>
-      {/* <Link href="https://kublockchain.com/" isExternal>
-        <Button colorScheme="pink" variant="outline" size="sm">
-          Learn More
-        </Button>
-      </Link> */}
     </Flex>
   );
 };
