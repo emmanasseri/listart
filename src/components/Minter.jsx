@@ -44,19 +44,20 @@ const Minter = ({ isOpen, onClose }) => {
   });
 
   const handleMintNFT = async () => {
-    console.log("handleMintNFT function called"); // Add this line to check function call
+    console.log("handleMintNFT function called");
     if (!file) {
       console.error("No file selected!");
       return;
     }
     try {
       const userAddress = await getUserAddressFromXumm();
-      if (!userAddress) {
+      if (userAddress) {
+        console.log("User XRPL Address:", userAddress);
+        // Proceed with minting using userAddress...
+        // The minting logic will go here.
+      } else {
         console.error("Failed to get user address from Xumm");
-        return;
       }
-      console.log("User XRPL Address:", userAddress);
-      // Proceed with minting using userAddress...
     } catch (error) {
       console.error("Failed to mint NFT:", error);
     }
@@ -75,9 +76,19 @@ const Minter = ({ isOpen, onClose }) => {
       });
       const data = await response.json();
       console.log(data);
-      // Redirect user to Xumm for signing
+      if (response.ok && data.next && data.next.always) {
+        // Redirect user to Xumm for signing
+        window.location.href = data.next.always;
+        // After redirecting, you need to handle the next steps
+        // such as waiting for the user to sign and getting the result.
+        // This could involve polling or webhooks.
+      } else {
+        console.error("Error with Xumm response:", data);
+        // Handle errors or different responses here.
+      }
     } catch (error) {
       console.error("Error while getting user address from Xumm:", error);
+      return null; // return null to indicate the address wasn't retrieved
     }
   };
 
