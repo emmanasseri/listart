@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button, Image } from "@chakra-ui/react";
+import { Button, Image, Box } from "@chakra-ui/react";
 import styles from "./Navbar.module.css"; // Import the CSS module
 
 const Navbar = () => {
@@ -24,18 +24,19 @@ const Navbar = () => {
   return (
     <nav className={styles.navbar}>
       <Link href="/" passHref>
-        <Button variant="outline" colorScheme="whiteAlpha">
+        <Box as="button" bg="transparent" _hover={{ bg: "transparent" }}>
           <Image src="/logo.png" alt="Logo" boxSize="40px" />
-        </Button>
+        </Box>
       </Link>
 
       <div className={isDrawerOpen ? styles.drawer : styles.rightMenu}>
-        {["about", "tap", "list", "browse"].map((item) => (
+        {["list", "tap", "about", "browse"].map((item) => (
           <Link href={`/${item}`} key={item} passHref>
             <Button
               variant="outline"
               colorScheme="whiteAlpha"
               className={styles.drawerItem}
+              m={2} // Adding margin around each button
             >
               {item}
             </Button>
