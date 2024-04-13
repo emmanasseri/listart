@@ -11,22 +11,27 @@ import {
   Text,
   Center,
   VStack,
+  Input,
+  FormControl,
+  FormLabel,
+  Switch,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
-import xrpl from "xrpl";
-import { XummSdk } from "xumm-sdk";
+import { Client, Wallet, NFTokenMintFlags, convertStringToHex } from "xrpl";
 
-console.log("key", process.env.NEXT_PUBLIC_XUMM_API_KEY);
-console.log("secret", process.env.NEXT_PUBLIC_XUMM_API_SECRET);
-const Sdk = new XummSdk(
-  process.env.NEXT_PUBLIC_XUMM_API_KEY,
-  process.env.NEXT_PUBLIC_XUMM_API_SECRET
-);
+import { XummSdk } from "xumm-sdk";
 
 const Minter = ({ isOpen, onClose }) => {
   const [file, setFile] = useState(null);
-  const [name, setName] = useState("");
-  const [label, setLabel] = useState("");
+  const [title, setTitle] = useState("");
+  const [artists, setArtists] = useState([]);
+  const [medium, setMedium] = useState("");
+  const [description, setDescription] = useState("");
+  const [cost, setCost] = useState(0);
+  const [royalties, setRoyalties] = useState(0);
+  const [ownerContact, setOwnerContact] = useState("");
+  const [forSale, setForSale] = useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/jpeg, image/png",
@@ -34,95 +39,114 @@ const Minter = ({ isOpen, onClose }) => {
       setFile(acceptedFiles[0]);
     },
   });
+  const uploadToIPFS = async (jsonData) => {
+    const formData = new FormData();
+    formData.append(
+      "file",
+      new Blob([JSON.stringify(jsonData)], { type: "application/json" })
+    );
 
-  const uploadToIPFS = async (file) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
+      },
+      body: formData,
+    });
 
-      // No need for fs as we're handling this in the browser environment
-      const res = await fetch(
-        "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
-          },
-          body: formData,
-        }
-      );
-
-      const resData = await res.json();
-
-      // Assuming the file URL is what you need for minting
-      return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
-    } catch (error) {
-      console.error("Error uploading file to IPFS:", error);
-      return null;
-    }
+    const resData = await res.json();
+    return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
   };
 
-  // const handleMint = async () => {
-  //   if (!file) {
-  //     console.log("No file selected to mint!");
-  //     return;
-  //   }
-  //   const metadataURI = await uploadToIPFS(file);
-  //   if (!metadataURI) {
-  //     console.log("File upload to IPFS failed");
-  //     return;
-  //   }
+  const uploadImageToIPFS = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
 
-  //   // Connect to the XRPL Testnet
-  //   const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
-  //   await client.connect();
-
-  //   // Example: Define the wallet and nftokenmint transaction
-  //   const wallet = xrpl.Wallet.fromSeed("s...");
-  //   const nftMintTx = {
-  //     TransactionType: "NFTokenMint",
-  //     Account: wallet.address,
-  //     URI: xrpl.convertStringToHex(metadataURI),
-  //     Flags: xrpl.NFTokenMintFlags.tfBurnable,
-  //   };
-
-  //   const response = await client.submitAndWait(nftMintTx, { wallet });
-  //   console.log("NFT Minted: ", response);
-
-  //   await client.disconnect();
-  //   onClose();
-  // };
-
-  const handleMint = async (user, nftDetails) => {
-    const payload = {
-      txjson: {
-        TransactionType: "NFTokenMint",
-        Account: user.xrplAccount,
-        URI: nftDetails.metadataUri,
-        Flags: 8, // Depending on the type of NFT and properties
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
       },
+      body: formData,
+    });
+
+    const resData = await res.json();
+    return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
+  };
+
+  const createAndUploadMetadata = async (imageUri, otherMetadata) => {
+    const metadata = {
+      ...otherMetadata,
+      image: imageUri, // Include the image URI in the metadata
     };
 
+    return await uploadToIPFS(metadata); // Reuse the IPFS upload function for the metadata
+  };
+
+  const mintNFT = async (metadataUri) => {
+    // Replace 'wss://s.altnet.rippletest.net/' with the correct WebSocket URL for the XRPL Testnet
+    const client = new Client("wss://s.devnet.rippletest.net:51233/");
+
     try {
-      // Create a payload for the user to sign in their Xumm app
-      const created = await Sdk.payload.create(payload);
+      await client.connect();
 
-      // Redirect user to sign the transaction in the Xumm app
-      // or use a QR code displayed to the user
-      console.log(`Please sign the transaction: ${created.next.always}`);
+      const seed = process.env.NEXT_PUBLIC_XRPL_SECRET; // Your Testnet wallet secret
+      const wallet = Wallet.fromSeed(seed);
 
-      // Wait for the user to sign the transaction
-      const resolved = await Sdk.payload.get(created.payload_uuidv4);
+      const nftMintTx = {
+        TransactionType: "NFTokenMint",
+        Account: wallet.classicAddress,
+        URI: convertStringToHex(metadataUri),
+        Flags: NFTokenMintFlags.tfBurnable | NFTokenMintFlags.tfOnlyXRP,
+        NFTokenTaxon: 0,
+      };
 
-      if (resolved.application && resolved.application.issued_user_token) {
-        console.log("NFT Minted Successfully");
-      } else {
-        console.log("Failed to mint NFT");
-      }
+      const response = await client.submitAndWait(nftMintTx, { wallet });
+      console.log("NFT Minted: ", response);
     } catch (error) {
-      console.error("Error minting NFT: ", error);
+      console.error("Error during minting NFT: ", error);
+    } finally {
+      await client.disconnect();
     }
   };
+
+  const handleMintNFT = async () => {
+    if (!file) {
+      console.error("No file selected!");
+      return;
+    }
+
+    try {
+      // Upload the image to IPFS and get the URI
+      const imageUri = await uploadImageToIPFS(file);
+      if (!imageUri) {
+        console.error("Failed to upload image to IPFS");
+        return;
+      }
+
+      // Create and upload metadata including the image URI
+      const metadataUri = await createAndUploadMetadata(imageUri, {
+        title,
+        artists: artists.split(", "), // Converts comma-separated string to array
+        medium,
+        description,
+        cost,
+        royalties,
+        ownerContact,
+        forSale,
+      });
+      if (!metadataUri) {
+        console.error("Failed to upload metadata to IPFS");
+        return;
+      }
+
+      // Mint the NFT on the XRPL using the metadata URI
+      await mintNFT(metadataUri);
+    } catch (error) {
+      console.error("Failed to mint NFT:", error);
+    }
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -148,23 +172,58 @@ const Minter = ({ isOpen, onClose }) => {
                   </Text>
                 )}
               </Center>
-              <input
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                style={{ padding: "10px", margin: "10px 0", width: "100%" }}
+              <Input
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-              <input
-                placeholder="Enter a label for the NFT"
-                value={label}
-                onChange={(e) => setLabel(e.target.value)}
-                style={{ padding: "10px", margin: "10px 0", width: "100%" }}
+              <Input
+                placeholder="Artist Names (comma separated)"
+                value={artists}
+                onChange={(e) => setArtists(e.target.value)}
               />
-
+              <Input
+                placeholder="Medium"
+                value={medium}
+                onChange={(e) => setMedium(e.target.value)}
+              />
+              <Input
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <Input
+                placeholder="Cost in XRP"
+                type="number"
+                value={cost}
+                onChange={(e) => setCost(parseFloat(e.target.value))}
+              />
+              <Input
+                placeholder="Royalties (%)"
+                type="number"
+                value={royalties}
+                onChange={(e) => setRoyalties(parseFloat(e.target.value))}
+              />
+              <Input
+                placeholder="Owner’s Contact Information"
+                type="email"
+                value={ownerContact}
+                onChange={(e) => setOwnerContact(e.target.value)}
+              />
+              <FormControl display="flex" alignItems="center">
+                <FormLabel htmlFor="for-sale" mb="0">
+                  For Sale?
+                </FormLabel>
+                <Switch
+                  id="for-sale"
+                  isChecked={forSale}
+                  onChange={(e) => setForSale(e.target.checked)}
+                />
+              </FormControl>
               <Button
                 colorScheme="blue"
-                isDisabled={!file || !name}
-                onClick={handleMint}
+                isDisabled={!file || !title || !artists}
+                onClick={handleMintNFT}
               >
                 Begin Mint
               </Button>

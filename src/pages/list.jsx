@@ -10,11 +10,6 @@ const List = () => {
   } = useDisclosure();
 
   const handleListArtClick = async () => {
-    // This function can now focus on setting up or validating anything required before opening the minter
-    // If there are any preconditions or checks, perform them here
-    // For example, you might check if the user is logged in or if their wallet is connected
-
-    // If everything is fine, just open the Minter modal
     onMinterOpen();
   };
 
