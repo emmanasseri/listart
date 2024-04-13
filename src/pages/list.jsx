@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { Box, Button, Text, useDisclosure } from "@chakra-ui/react";
-import { XRPLEVMProvider } from "@/contexts/XRPL_EVM_context";
 import Minter from "@/components/Minter";
 
 const List = () => {
@@ -11,21 +10,14 @@ const List = () => {
   } = useDisclosure();
 
   const handleListArtClick = async () => {
-    if (!isMetaMaskInstalled) {
-      alert("Please install MetaMask!");
-      return;
-    }
-    await connectWallet();
-    const isOnCorrectNetwork = await checkIsOnXRPLEVMSidechain();
-    if (!isOnCorrectNetwork) {
-      const userConsent = confirm("Switch to the XRPL EVM Sidechain?");
-      if (userConsent) {
-        await addXRPLEVMSidechain();
-      }
-      return;
-    }
+    // This function can now focus on setting up or validating anything required before opening the minter
+    // If there are any preconditions or checks, perform them here
+    // For example, you might check if the user is logged in or if their wallet is connected
+
+    // If everything is fine, just open the Minter modal
     onMinterOpen();
   };
+
   return (
     <Box p={4} maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden">
       <Text fontSize="xl">List</Text>

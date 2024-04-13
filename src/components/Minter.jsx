@@ -13,19 +13,17 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
-import { ethers } from "ethers";
-//import contractABI from "../../abis/contractABI.json";
-import { useXRPLEVM } from "@/contexts/XRPL_EVM_context";
+import xrpl from "xrpl";
+import { XummSdk } from "xumm-sdk";
+
+console.log("key", process.env.NEXT_PUBLIC_XUMM_API_KEY);
+console.log("secret", process.env.NEXT_PUBLIC_XUMM_API_SECRET);
+const Sdk = new XummSdk(
+  process.env.NEXT_PUBLIC_XUMM_API_KEY,
+  process.env.NEXT_PUBLIC_XUMM_API_SECRET
+);
 
 const Minter = ({ isOpen, onClose }) => {
-  const {
-    isMetaMaskInstalled,
-    walletConnected,
-    connectWallet,
-    checkIsOnXRPLEVMSidechain,
-    addXRPLEVMSidechain,
-  } = useXRPLEVM();
-
   const [file, setFile] = useState(null);
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
@@ -64,53 +62,67 @@ const Minter = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleMint = async () => {
-    console.log("Minting NFT");
-    // if (!file) {
-    //   console.log("No file selected to mint!");
-    //   return;
-    // }
-    // if (!isMetaMaskInstalled) {
-    //   console.log("MetaMask is not installed!");
-    //   return;
-    // }
-    // // Check if the user is on the Amoy network
-    // if (!checkIsOnXRPLEVMSidechain()) {
-    //   console.log("You're not connected to the Amoy network!");
-    //   // Prompt user to switch to the Amoy network
-    //   await addXRPLEVMSidechain();
-    //   return; // Optionally, you could stop the function here or recheck the network
-    // }
-    // const metadataURI = await uploadToIPFS(file);
-    // if (!metadataURI) {
-    //   console.log("File upload to IPFS failed");
-    //   return;
-    // }
-    // // Proceed with getting the provider and signer from ethers as you have MetaMask and are connected to Amoy
-    // const provider = new ethers.BrowserProvider(window.ethereum);
-    // const signer = await provider.getSigner();
-    // const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-    // const contract = new ethers.Contract(
-    //   contractAddress,
-    //   contractABI.abi,
-    //   signer
-    // );
-    // try {
-    //   const userAddress = await signer.getAddress();
-    //   const mintTx = await contract.mintNFT(
-    //     userAddress,
-    //     metadataURI,
-    //     name,
-    //     label
-    //   );
-    //   await mintTx.wait();
-    //   console.log("NFT minted! Transaction: ", mintTx.hash);
-    //   onClose();
-    // } catch (error) {
-    //   console.error("Minting failed: ", error);
-    // }
-  };
+  // const handleMint = async () => {
+  //   if (!file) {
+  //     console.log("No file selected to mint!");
+  //     return;
+  //   }
+  //   const metadataURI = await uploadToIPFS(file);
+  //   if (!metadataURI) {
+  //     console.log("File upload to IPFS failed");
+  //     return;
+  //   }
 
+  //   // Connect to the XRPL Testnet
+  //   const client = new xrpl.Client("wss://s.altnet.rippletest.net:51233");
+  //   await client.connect();
+
+  //   // Example: Define the wallet and nftokenmint transaction
+  //   const wallet = xrpl.Wallet.fromSeed("s...");
+  //   const nftMintTx = {
+  //     TransactionType: "NFTokenMint",
+  //     Account: wallet.address,
+  //     URI: xrpl.convertStringToHex(metadataURI),
+  //     Flags: xrpl.NFTokenMintFlags.tfBurnable,
+  //   };
+
+  //   const response = await client.submitAndWait(nftMintTx, { wallet });
+  //   console.log("NFT Minted: ", response);
+
+  //   await client.disconnect();
+  //   onClose();
+  // };
+
+  const handleMint = async (user, nftDetails) => {
+    const payload = {
+      txjson: {
+        TransactionType: "NFTokenMint",
+        Account: user.xrplAccount,
+        URI: nftDetails.metadataUri,
+        Flags: 8, // Depending on the type of NFT and properties
+      },
+    };
+
+    try {
+      // Create a payload for the user to sign in their Xumm app
+      const created = await Sdk.payload.create(payload);
+
+      // Redirect user to sign the transaction in the Xumm app
+      // or use a QR code displayed to the user
+      console.log(`Please sign the transaction: ${created.next.always}`);
+
+      // Wait for the user to sign the transaction
+      const resolved = await Sdk.payload.get(created.payload_uuidv4);
+
+      if (resolved.application && resolved.application.issued_user_token) {
+        console.log("NFT Minted Successfully");
+      } else {
+        console.log("Failed to mint NFT");
+      }
+    } catch (error) {
+      console.error("Error minting NFT: ", error);
+    }
+  };
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>

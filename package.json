@@ -19,7 +19,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
-    "typed.js": "^2.1.0"
+    "typed.js": "^2.1.0",
+    "xrpl": "^3.0.0",
+    "xumm-sdk": "^1.11.1"
   },
   "devDependencies": {
     "eslint": "^8",
