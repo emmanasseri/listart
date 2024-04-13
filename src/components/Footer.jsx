@@ -12,7 +12,7 @@ const Footer = () => {
       padding="8"
     >
       <Text fontSize="sm" marginBottom="2">
-        Made @ HACKKU'24
+        Made @ HACKKU24
       </Text>
       {/* <Link href="https://kublockchain.com/" isExternal>
         <Button colorScheme="pink" variant="outline" size="sm">
