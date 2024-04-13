@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Box, Heading, Text, Flex, Button } from "@chakra-ui/react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { Footer } from "../components/Footer";
-import theme from "./theme";
+import theme from "../styles/theme";
 import TypingAnimation from "@/components/TypingAnimation";
 import About from "../components/about";
 
