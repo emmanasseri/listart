@@ -63,32 +63,50 @@ const Minter = ({ isOpen, onClose }) => {
       console.log(
         "XUMM flow initiated, waiting for user to complete action..."
       );
-      const intervalId = setInterval(async () => {
-        try {
-          const response = await fetch(
-            `/api/xummHandler?payloadId=${payloadId}`
-          );
-          if (response.ok) {
-            const { userAddress } = await response.json();
-            if (userAddress) {
-              clearInterval(intervalId);
-              console.log("User address received:", userAddress);
-              // Proceed with further actions now that you have the user address
-              // Mint here, if this is where you handle minting
-              console.log("Proceeding with minting...");
-            } else {
-              console.log("User address not yet available, waiting...");
-            }
-          } else {
-            throw new Error("Failed to retrieve user address");
-          }
-        } catch (error) {
-          clearInterval(intervalId);
-          console.error("Error checking for user address:", error);
+      pollForUserAddress(
+        payloadId,
+        async (userAddress) => {
+          // This callback function will be called when the user address is received
+          setIsCreating(false); // Hide the loading modal
+          console.log("Proceeding with minting...");
+          const tokenIdentifier = await mintToken(userAddress); // Assume mintToken is implemented to handle minting
+          window.location.href = `/token/${tokenIdentifier}`; // Redirect the user
+        },
+        (error) => {
+          // This callback function will be called on error
+          setIsCreating(false); // Hide the loading modal
+          console.error("Failed to retrieve user address:", error);
+          // Optionally show an error message to the user
         }
-      }, 5000); // Poll every 5 seconds
+      );
     } catch (error) {
       console.error("Failed to mint NFT:", error);
+      setIsCreating(false);
+    }
+  };
+  const pollForUserAddress = async (payloadId, onAddressReceived, onError) => {
+    try {
+      const response = await fetch(`/api/xummHandler?payloadId=${payloadId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.userAddress) {
+          console.log("User address received:", data.userAddress);
+          onAddressReceived(data.userAddress); // Call the callback function with the user address
+        } else {
+          console.log("User address not yet available, waiting...");
+          setTimeout(
+            () => pollForUserAddress(payloadId, onAddressReceived, onError),
+            5000
+          ); // Poll every 5 seconds
+        }
+      } else {
+        throw new Error("Failed to retrieve user address");
+      }
+    } catch (error) {
+      console.error("Error checking for user address:", error);
+      if (typeof onError === "function") {
+        onError(error); // Call the error callback function
+      }
     }
   };
 
