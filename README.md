@@ -20,9 +20,9 @@ They can tokenize their digital version by minting as an NFT on XRPL, and unique
 I'm an art student, specializing in traditional, physical media. I'm also really passionate about decentralization and tokenization that empowers people. 
 
 Earlier this week, I found myself sitting on my bedroom floor for 8 hours, turning 20 paper lanterns and a bag of pillow stuffing into 6 huge, color-changing clouds that hung from the ceiling at HackKU. At some point during those 8 hours, I thought "wow I cannot wait to get rid of these and literally never look at them again."
-
-    [Visual Aid]
-        ⬇
+    
+   Visual Aid
+       ⬇
 ![the infamous clouds](https://github.com/emmanasseri/listart/blob/main/public/clouds.png)
 
 And then I thought of a HackKU project idea!
