@@ -35,6 +35,8 @@ const Minter = ({ isOpen, onClose }) => {
   const [royalties, setRoyalties] = useState(0);
   const [ownerContact, setOwnerContact] = useState("");
   const [forSale, setForSale] = useState(false);
+  const [creatorAddress, setCreatorAddress] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/jpeg, image/png",
@@ -44,52 +46,124 @@ const Minter = ({ isOpen, onClose }) => {
   });
 
   const handleMintNFT = async () => {
-    console.log("handleMintNFT function called");
     if (!file) {
       console.error("No file selected!");
       return;
     }
+    setIsCreating(true);
     try {
-      const userAddress = await getUserAddressFromXumm();
-      if (userAddress) {
-        console.log("User XRPL Address:", userAddress);
-        // Proceed with minting using userAddress...
-        // The minting logic will go here.
-      } else {
-        console.error("Failed to get user address from Xumm");
+      // Start the Xumm flow to get the initial user interaction
+      const payloadId = await xummFlow();
+      if (!payloadId) {
+        console.error("Failed to initiate the XUMM flow.");
+        setIsCreating(false);
+        return;
       }
+
+      console.log(
+        "XUMM flow initiated, waiting for user to complete action..."
+      );
+      const intervalId = setInterval(async () => {
+        try {
+          const response = await fetch(
+            `/api/xummHandler?payloadId=${payloadId}`
+          );
+          if (response.ok) {
+            const { userAddress } = await response.json();
+            if (userAddress) {
+              clearInterval(intervalId);
+              console.log("User address received:", userAddress);
+              // Proceed with further actions now that you have the user address
+              // Mint here, if this is where you handle minting
+              console.log("Proceeding with minting...");
+            } else {
+              console.log("User address not yet available, waiting...");
+            }
+          } else {
+            throw new Error("Failed to retrieve user address");
+          }
+        } catch (error) {
+          clearInterval(intervalId);
+          console.error("Error checking for user address:", error);
+        }
+      }, 5000); // Poll every 5 seconds
     } catch (error) {
       console.error("Failed to mint NFT:", error);
     }
   };
 
-  const getUserAddressFromXumm = async () => {
+  const xummFlow = async () => {
     try {
-      const response = await fetch("/api/xumm", {
+      const payloadResponse = await fetch("/api/xumm", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          txjson: { TransactionType: "SignIn" },
-        }),
+        body: JSON.stringify({ txjson: { TransactionType: "SignIn" } }),
       });
-      const data = await response.json();
-      console.log(data);
-      if (response.ok && data.next && data.next.always) {
+
+      const payloadData = await payloadResponse.json();
+      console.log("Payload Data:", payloadData); // Log the payload data for reference
+
+      if (payloadResponse.ok && payloadData.uuid) {
         // Redirect user to Xumm for signing
-        window.location.href = data.next.always;
-        // After redirecting, you need to handle the next steps
-        // such as waiting for the user to sign and getting the result.
-        // This could involve polling or webhooks.
+        if (payloadData.next && payloadData.next.always) {
+          window.location.href = payloadData.next.always;
+        }
+
+        // Return the UUID to indicate the payload creation succeeded
+
+        return payloadData.uuid;
       } else {
-        console.error("Error with Xumm response:", data);
-        // Handle errors or different responses here.
+        throw new Error("Failed to create payload or retrieve UUID.");
       }
     } catch (error) {
       console.error("Error while getting user address from Xumm:", error);
-      return null; // return null to indicate the address wasn't retrieved
     }
+  };
+
+  const uploadToIPFS = async (jsonData) => {
+    const formData = new FormData();
+    formData.append(
+      "file",
+      new Blob([JSON.stringify(jsonData)], { type: "application/json" })
+    );
+
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
+      },
+      body: formData,
+    });
+
+    const resData = await res.json();
+    return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
+  };
+
+  const uploadImageToIPFS = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
+      },
+      body: formData,
+    });
+
+    const resData = await res.json();
+    return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
+  };
+
+  const createAndUploadMetadata = async (imageUri, otherMetadata) => {
+    const metadata = {
+      ...otherMetadata,
+      image: imageUri, // Include the image URI in the metadata
+    };
+
+    return await uploadToIPFS(metadata); // Reuse the IPFS upload function for the metadata
   };
 
   if (!isMobile()) {
@@ -133,10 +207,57 @@ const Minter = ({ isOpen, onClose }) => {
                 </Text>
               )}
             </Center>
-            {/* All other input fields */}
+            <Input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <Input
+              placeholder="Artist Names (comma separated)"
+              value={artists}
+              onChange={(e) => setArtists(e.target.value)}
+            />
+            <Input
+              placeholder="Medium"
+              value={medium}
+              onChange={(e) => setMedium(e.target.value)}
+            />
+            <Input
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            <Input
+              placeholder="Cost in XRP"
+              type="number"
+              value={cost}
+              onChange={(e) => setCost(parseFloat(e.target.value))}
+            />
+            <Input
+              placeholder="Royalties (%)"
+              type="number"
+              value={royalties}
+              onChange={(e) => setRoyalties(parseFloat(e.target.value))}
+            />
+            <Input
+              placeholder="Owner’s Contact Information"
+              type="email"
+              value={ownerContact}
+              onChange={(e) => setOwnerContact(e.target.value)}
+            />
+            <FormControl display="flex" alignItems="center">
+              <FormLabel htmlFor="for-sale" mb="0">
+                For Sale?
+              </FormLabel>
+              <Switch
+                id="for-sale"
+                isChecked={forSale}
+                onChange={(e) => setForSale(e.target.checked)}
+              />
+            </FormControl>
             <Button
               colorScheme="blue"
-              isDisabled={!file}
+              isDisabled={!file || !title || !artists}
               onClick={handleMintNFT}
             >
               Begin Mint

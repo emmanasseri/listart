@@ -2,6 +2,9 @@
 import axios from "axios";
 
 const handler = async (req, res) => {
+  console.log("Xumm.js");
+  console.log("Webhook received:", req.method, req.body);
+
   if (req.method === "POST") {
     try {
       const apiResponse = await axios.post(
@@ -17,8 +20,12 @@ const handler = async (req, res) => {
 
       res.status(200).json(apiResponse.data);
     } catch (error) {
-      console.error("Error creating Xumm payload:", error);
-      res.status(500).json({ error: "Error creating Xumm payload" });
+      const errorMessage = error.response ? error.response.data : error.message;
+      console.error("Error creating Xumm payload:", errorMessage);
+      res.status(error.response ? error.response.status : 500).json({
+        error: "Error creating Xumm payload",
+        details: errorMessage,
+      });
     }
   } else {
     res.setHeader("Allow", ["POST"]);
