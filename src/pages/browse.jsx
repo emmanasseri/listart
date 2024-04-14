@@ -61,7 +61,7 @@ const Browse = () => {
       <Text fontSize="2xl" fontWeight="bold" mb={4}>
         Browse feature coming soon.
       </Text>
-      <SimpleGrid columns={3} spacing={10}>
+      {/* <SimpleGrid columns={3} spacing={10}>
         {artListings.map((art, index) => (
           <ArtListing
             key={index}
@@ -75,7 +75,7 @@ const Browse = () => {
             royalties={art.royalties}
           />
         ))}
-      </SimpleGrid>
+      </SimpleGrid> */}
     </>
   );
 };
