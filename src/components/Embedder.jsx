@@ -22,7 +22,7 @@ const Embedder = ({ isOpen, onClose, artworkUrl }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent bg="gray.800" color="white">
         <ModalHeader>Embed This Work</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
