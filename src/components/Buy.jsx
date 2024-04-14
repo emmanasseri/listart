@@ -15,7 +15,7 @@ const Buy = ({ isOpen, onClose }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent bg="gray.800" color="white">
         <ModalHeader>Buy Artwork</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
