@@ -3,6 +3,10 @@
 
 Listart was built during HackKU 2024. 
 
+View the deployment [here.](https://listart.vercel.app/)
+
+View an example tokenized art listing [here.](https://listart.vercel.app/listing?TID=000300007D3AB4943723FD7BC3DE7F9AB8A2B31569476690B4E593A20059D307&OWN=rUR98uNXBRcqgVpy1fDBSwBqbYFNWnriQJ)
+
 ## What it does
 
 The idea is 
