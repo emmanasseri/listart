@@ -1,6 +1,5 @@
-
+☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟
 # About this project
-☀️  🌙  ☁  🌟
 
 Listart was built during HackKU 2024. 
 
