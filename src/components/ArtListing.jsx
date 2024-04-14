@@ -29,6 +29,7 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
           (n) => n.NFTokenID === tokenId
         );
         console.log(nft.URI);
+
         const metadataUri = convertHexToString(nft.URI);
         const url = new URL(metadataUri);
         const ipfsHash = url.pathname.split("/ipfs/")[1];
@@ -42,9 +43,11 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
         }
 
         const metadata = await metadataResponse.json();
+        console.log("ipfshash: ", metadata.image);
+        const imageUrl = await getImageUrl(metadata.image);
 
         setNftData({
-          imageUrl: `https://gateway.pinata.cloud/ipfs/${metadata.image}`,
+          imageUrl: imageUrl,
           title: metadata.title,
           artistNames: metadata.artists,
           medium: metadata.medium,
@@ -75,6 +78,12 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
   if (!nftData) {
     return <Text>Loading NFT details...</Text>;
   }
+  const getImageUrl = async (imageUrl) => {
+    const tempUrl = new URL(imageUrl);
+    const ipfsHash = tempUrl.pathname.split("/ipfs/")[1];
+    console.log("image ipfshash: ", ipfsHash);
+    return `/api/fetchNFTMetadata?ipfsHash=${ipfsHash}&contentType=image`;
+  };
 
   return (
     <Box

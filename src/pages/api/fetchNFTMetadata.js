@@ -1,9 +1,7 @@
 // pages/api/fetchNFTMetadata.js
-
 export default async function handler(req, res) {
-  const { ipfsHash } = req.query;
+  const { ipfsHash, contentType } = req.query;
 
-  // Log the incoming IPFS hash to ensure it's being received correctly
   console.log("Received IPFS hash:", ipfsHash);
 
   if (!ipfsHash) {
@@ -13,11 +11,11 @@ export default async function handler(req, res) {
 
   try {
     const url = `https://gateway.pinata.cloud/ipfs/${ipfsHash}`;
-    console.log("Attempting to fetch metadata from URL:", url);
+    console.log("Attempting to fetch content from URL:", url);
 
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`, // Make sure your JWT token is correctly set in your environment variables
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`, // Ensure your JWT is correctly set
       },
     });
 
@@ -27,9 +25,17 @@ export default async function handler(req, res) {
       );
     }
 
-    const data = await response.json();
-    console.log("Successfully fetched IPFS data:", data);
-    res.status(200).json(data);
+    // Check if the request is for an image or general data
+    if (contentType === "image") {
+      const imageBlob = await response.blob();
+      res.setHeader("Content-Type", imageBlob.type);
+      const arrayBuffer = await imageBlob.arrayBuffer();
+      res.send(Buffer.from(arrayBuffer));
+    } else {
+      const data = await response.json();
+      console.log("Successfully fetched IPFS data:", data);
+      res.status(200).json(data);
+    }
   } catch (error) {
     console.error("Error fetching IPFS data:", error);
     res.status(500).json({ message: error.message });
