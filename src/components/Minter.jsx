@@ -15,10 +15,14 @@ import {
   FormControl,
   FormLabel,
   Switch,
+  Box,
+  useToast,
 } from "@chakra-ui/react";
 import { useDropzone } from "react-dropzone";
 import { Client, Wallet, NFTokenMintFlags, convertStringToHex } from "xrpl";
 import { XummSdk } from "xumm-sdk";
+import Creating from "./Creating";
+import { useRouter } from "next/router";
 
 const isMobile = () => {
   // A simple mobile detection, you might want to use a library for a robust solution
@@ -37,6 +41,9 @@ const Minter = ({ isOpen, onClose }) => {
   const [forSale, setForSale] = useState(false);
   const [creatorAddress, setCreatorAddress] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [mintSuccess, setMintSuccess] = useState(false);
+  const toast = useToast();
+  const router = useRouter();
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: "image/jpeg, image/png",
@@ -44,6 +51,91 @@ const Minter = ({ isOpen, onClose }) => {
       setFile(acceptedFiles[0]);
     },
   });
+
+  const temporaryHandleMintNFT = async () => {
+    if (!file) {
+      console.error("No file selected!");
+      return;
+    }
+
+    try {
+      // Upload the image to IPFS and get the URI
+      const imageUri = await uploadImageToIPFS(file);
+      if (!imageUri) {
+        console.error("Failed to upload image to IPFS");
+        return;
+      }
+
+      // Create and upload metadata including the image URI
+      const metadataUri = await createAndUploadMetadata(imageUri, {
+        title,
+        artists: artists.split(", "), // Converts comma-separated string to array
+        medium,
+        description,
+        cost,
+        royalties,
+        ownerContact,
+        forSale,
+      });
+      if (!metadataUri) {
+        console.error("Failed to upload metadata to IPFS");
+        return;
+      }
+
+      // Mint the NFT on the XRPL using the metadata URI
+      await temporaryMintNFT(metadataUri);
+    } catch (error) {
+      console.error("Failed to mint NFT:", error);
+    }
+  };
+
+  const temporaryMintNFT = async (metadataUri) => {
+    setIsCreating(true);
+    setMintSuccess(false);
+    const client = new Client("wss://s.devnet.rippletest.net:51233/");
+
+    try {
+      await client.connect();
+
+      const seed = process.env.NEXT_PUBLIC_XRPL_SECRET; // Your Testnet wallet secret
+      const wallet = Wallet.fromSeed(seed);
+      const ownerAddress = wallet.classicAddress;
+      const nftMintTx = {
+        TransactionType: "NFTokenMint",
+        Account: ownerAddress,
+        URI: convertStringToHex(metadataUri),
+        Flags: NFTokenMintFlags.tfBurnable | NFTokenMintFlags.tfOnlyXRP,
+        NFTokenTaxon: 0,
+      };
+
+      const response = await client.submitAndWait(nftMintTx, { wallet });
+      console.log("NFT Minted: ", response);
+      setIsCreating(false);
+      if (response.result.meta.TransactionResult === "tesSUCCESS") {
+        const nftokenId = response.result.meta.nftoken_id;
+
+        toast({
+          title: "Minting Successful!",
+          description: "Your NFT has been successfully minted.",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+          position: "top",
+        });
+        setTimeout(() => {
+          // router.push(`/listing/?tokenID=${nftokenId}&tokenOwner=${ownerAddress}`);
+          router.push(
+            `/listing/?tokenID=${nftokenId}&tokenOwner=${ownerAddress}`
+          );
+        }, 1000); // 10000 milliseconds = 10 seconds
+      }
+    } catch (error) {
+      console.error("Error during minting NFT: ", error);
+    } finally {
+      await client.disconnect();
+    }
+    setIsCreating(false);
+  };
 
   const handleMintNFT = async () => {
     if (!file) {
@@ -202,93 +294,104 @@ const Minter = ({ isOpen, onClose }) => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Mint your NFT</ModalHeader>
-        <ModalBody>
-          <VStack spacing={4}>
-            <Center
-              p={16}
-              bg="gray.200"
-              borderRadius="md"
-              {...getRootProps()}
-              cursor="pointer"
-            >
-              <input {...getInputProps()} />
-              {file ? (
-                <Text>{file.name}</Text>
-              ) : (
-                <Text>
-                  Drag &apos;n&apos; drop your file here, or click to select
-                  files
-                </Text>
-              )}
-            </Center>
-            <Input
-              placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <Input
-              placeholder="Artist Names (comma separated)"
-              value={artists}
-              onChange={(e) => setArtists(e.target.value)}
-            />
-            <Input
-              placeholder="Medium"
-              value={medium}
-              onChange={(e) => setMedium(e.target.value)}
-            />
-            <Input
-              placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-            <Input
-              placeholder="Cost in XRP"
-              type="number"
-              value={cost}
-              onChange={(e) => setCost(parseFloat(e.target.value))}
-            />
-            <Input
-              placeholder="Royalties (%)"
-              type="number"
-              value={royalties}
-              onChange={(e) => setRoyalties(parseFloat(e.target.value))}
-            />
-            <Input
-              placeholder="Owner’s Contact Information"
-              type="email"
-              value={ownerContact}
-              onChange={(e) => setOwnerContact(e.target.value)}
-            />
-            <FormControl display="flex" alignItems="center">
-              <FormLabel htmlFor="for-sale" mb="0">
-                For Sale?
-              </FormLabel>
-              <Switch
-                id="for-sale"
-                isChecked={forSale}
-                onChange={(e) => setForSale(e.target.checked)}
+    <>
+      <Creating isOpen={isCreating} onClose={() => setIsCreating(false)} />
+      {mintSuccess && (
+        <Box position="fixed" bottom="4" width="full" textAlign="center">
+          <Text fontSize="xl" color="green.500">
+            NFT Minting Successful!
+          </Text>
+        </Box>
+      )}
+
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Mint your NFT</ModalHeader>
+          <ModalBody>
+            <VStack spacing={4}>
+              <Center
+                p={16}
+                bg="gray.200"
+                borderRadius="md"
+                {...getRootProps()}
+                cursor="pointer"
+              >
+                <input {...getInputProps()} />
+                {file ? (
+                  <Text>{file.name}</Text>
+                ) : (
+                  <Text>
+                    Drag &apos;n&apos; drop your file here, or click to select
+                    files
+                  </Text>
+                )}
+              </Center>
+              <Input
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-            </FormControl>
-            <Button
-              colorScheme="blue"
-              isDisabled={!file || !title || !artists}
-              onClick={handleMintNFT}
-            >
-              Begin Mint
+              <Input
+                placeholder="Artist Names (comma separated)"
+                value={artists}
+                onChange={(e) => setArtists(e.target.value)}
+              />
+              <Input
+                placeholder="Medium"
+                value={medium}
+                onChange={(e) => setMedium(e.target.value)}
+              />
+              <Input
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <Input
+                placeholder="Cost in XRP"
+                type="number"
+                value={cost}
+                onChange={(e) => setCost(parseFloat(e.target.value))}
+              />
+              <Input
+                placeholder="Royalties (%)"
+                type="number"
+                value={royalties}
+                onChange={(e) => setRoyalties(parseFloat(e.target.value))}
+              />
+              <Input
+                placeholder="Owner’s Contact Information"
+                type="email"
+                value={ownerContact}
+                onChange={(e) => setOwnerContact(e.target.value)}
+              />
+              <FormControl display="flex" alignItems="center">
+                <FormLabel htmlFor="for-sale" mb="0">
+                  For Sale?
+                </FormLabel>
+                <Switch
+                  id="for-sale"
+                  isChecked={forSale}
+                  onChange={(e) => setForSale(e.target.checked)}
+                />
+              </FormControl>
+              <Button
+                colorScheme="blue"
+                isDisabled={!file || !title || !artists}
+                onClick={temporaryHandleMintNFT}
+              >
+                Begin Mint
+              </Button>
+            </VStack>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={onClose}>
+              Close
             </Button>
-          </VStack>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="ghost" onClick={onClose}>
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
