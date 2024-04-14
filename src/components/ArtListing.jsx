@@ -132,7 +132,7 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
             New
           </Badge>
           <Box
-            color="gray.500"
+            color="gray.200"
             fontWeight="semibold"
             letterSpacing="wide"
             fontSize="xs"
@@ -147,7 +147,10 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
         </Heading>
         <Text fontWeight="bold">{nftData.artist}</Text>
         <Text mt="2">{nftData.description}</Text>
-        <Text mt="2">Owned by {nftData.owner}</Text>
+        <Text mt="2">
+          Owned by {nftData.owner ? nftData.owner : nftData.artist}
+        </Text>
+
         <Stack
           mt="2"
           direction="row"
