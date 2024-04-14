@@ -1,6 +1,8 @@
 
 # About this project
 ☀️  🌙  ☁  🌟
+Listart was built for HackKU 2024. 
+
 ## What it does
 
 The idea is 
