@@ -281,22 +281,22 @@ const Minter = ({ isOpen, onClose }) => {
     return await uploadToIPFS(metadata); // Reuse the IPFS upload function for the metadata
   };
 
-  if (!isMobile()) {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Device Not Supported</ModalHeader>
-          <ModalBody>
-            <Text>Please visit this page on a mobile device to mint NFTs.</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    );
-  }
+  // if (!isMobile()) {
+  //   return (
+  //     <Modal isOpen={isOpen} onClose={onClose}>
+  //       <ModalOverlay />
+  //       <ModalContent>
+  //         <ModalHeader>Device Not Supported</ModalHeader>
+  //         <ModalBody>
+  //           <Text>Please visit this page on a mobile device to mint NFTs.</Text>
+  //         </ModalBody>
+  //         <ModalFooter>
+  //           <Button onClick={onClose}>Close</Button>
+  //         </ModalFooter>
+  //       </ModalContent>
+  //     </Modal>
+  //   );
+  // }
 
   return (
     <>

@@ -13,6 +13,11 @@ import { Client, convertHexToString } from "xrpl";
 const ArtListing = ({ tokenId, tokenOwner }) => {
   const [nftData, setNftData] = useState(null);
   const toast = useToast();
+  const getImageUrl = async (imageUrl) => {
+    const tempUrl = new URL(imageUrl);
+    const ipfsHash = tempUrl.pathname.split("/ipfs/")[1];
+    return `/api/fetchNFTMetadata?ipfsHash=${ipfsHash}&contentType=image`;
+  };
 
   useEffect(() => {
     const fetchNFTData = async () => {
@@ -70,20 +75,14 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
       }
     };
 
-    if (tokenId) {
+    if (tokenId && tokenOwner) {
       fetchNFTData();
     }
-  }, [tokenId, toast]);
+  }, [tokenId, tokenOwner, toast]);
 
   if (!nftData) {
     return <Text>Loading NFT details...</Text>;
   }
-  const getImageUrl = async (imageUrl) => {
-    const tempUrl = new URL(imageUrl);
-    const ipfsHash = tempUrl.pathname.split("/ipfs/")[1];
-    console.log("image ipfshash: ", ipfsHash);
-    return `/api/fetchNFTMetadata?ipfsHash=${ipfsHash}&contentType=image`;
-  };
 
   return (
     <Box
