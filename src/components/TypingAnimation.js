@@ -9,7 +9,7 @@ class TypingAnimation extends React.Component {
       strings: words,
       typeSpeed: 50,
       backSpeed: 50,
-      loop: false,
+      loop: true,
       cursorChar: "|",
     };
     // this.el refers to the <span> in the render() method
