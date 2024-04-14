@@ -311,7 +311,7 @@ const Minter = ({ isOpen, onClose }) => {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg="gray.800" color="white">
           <ModalHeader>Mint your NFT</ModalHeader>
           <ModalBody>
             <VStack spacing={4}>
