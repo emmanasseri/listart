@@ -22,7 +22,7 @@ const theme = extendTheme({
     global: (props) => ({
       body: {
         fontSize: "md", // Now using 'lg' size for body text
-        color: props.colorMode === "dark" ? "white" : "gray.800",
+        color: "white",
         // Set the background color based on color mode
         bg: "#2c5282", // Adjust the color code for darker blue as needed
         // bgGradient: "linear(to-b, #2c5282, #4299e1)",
