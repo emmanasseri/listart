@@ -31,7 +31,7 @@ const List = () => {
           List Your Work
         </Text>
         <Text textAlign="center">
-          Tap the button below to list your first piece of artwork.
+          Tap the button below to list a piece of artwork.
         </Text>
         <Button colorScheme="blue" onClick={handleListArtClick} size="lg">
           List Art

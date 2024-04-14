@@ -58,6 +58,9 @@ const Browse = () => {
 
   return (
     <>
+      <Text fontSize="2xl" fontWeight="bold" mb={4}>
+        Browse feature coming soon.
+      </Text>
       <SimpleGrid columns={3} spacing={10}>
         {artListings.map((art, index) => (
           <ArtListing

@@ -76,7 +76,7 @@ const Minter = ({ isOpen, onClose }) => {
         cost,
         royalties,
         ownerContact,
-        forSale,
+        forSale: true,
         isEmbedded: false,
       });
       if (!metadataUri) {

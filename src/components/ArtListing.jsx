@@ -13,12 +13,18 @@ import {
 } from "@chakra-ui/react";
 import { Client, convertHexToString } from "xrpl";
 import Embedder from "./Embedder";
+import Buy from "./Buy";
 
 const ArtListing = ({ tokenId, tokenOwner }) => {
   const {
     isOpen: isEmbedderOpen,
     onOpen: onEmbedderOpen,
     onClose: onEmbedderClose,
+  } = useDisclosure();
+  const {
+    isOpen: isBuyOpen,
+    onOpen: onBuyOpen,
+    onClose: onBuyClose,
   } = useDisclosure();
 
   const [nftData, setNftData] = useState(null);
@@ -78,6 +84,8 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
           cost: metadata.cost,
           owner: metadata.owner, // This should be updated dynamically if possible
           royalties: metadata.royalties,
+          isEmbedded: metadata.isEmbedded,
+          forSale: metadata.forSale,
         });
       } catch (error) {
         console.error("Failed to fetch NFT data:", error);
@@ -101,6 +109,10 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
   if (!nftData) {
     return <Text>Loading NFT details...</Text>;
   }
+  const handleBuy = () => {
+    // Open the Buy modal
+    onBuyOpen();
+  };
 
   return (
     <Box
@@ -111,22 +123,9 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
       m={7}
       p={5}
     >
-      <Box maxW="sm" overflow="hidden" m={7} p={5}>
-        <Flex justifyContent="center" mt={4}>
-          {!nftData.isEmbedded && (
-            <Button colorScheme="blue" onClick={onEmbedderOpen}>
-              Embed This Work
-            </Button>
-          )}
-        </Flex>
-        <Embedder
-          isOpen={isEmbedderOpen}
-          onClose={onEmbedderClose}
-          onEmbed={onEmbed}
-          artworkUrl={window.location.href} // Or any other URL you wish to embed
-        />
-      </Box>
-      <Image src={nftData.imageUrl} alt={`Image of ${nftData.title}`} />
+      <Flex justifyContent="center">
+        <Image src={nftData.imageUrl} alt={`Image of ${nftData.title}`} />
+      </Flex>
       <Box p="6">
         <Box display="flex" alignItems="baseline">
           <Badge borderRadius="full" px="2" colorScheme="teal">
@@ -158,6 +157,31 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
           <Text fontWeight="bold">${nftData.cost}</Text>
           <Text fontSize="xs">Royalties: {nftData.royalties}%</Text>
         </Stack>
+      </Box>
+      <Box maxW="sm" overflow="hidden" p={3}>
+        <Flex justifyContent="center">
+          {nftData && nftData.forSale && (
+            <Button colorScheme="green" onClick={handleBuy} mb={4}>
+              Buy
+            </Button>
+          )}
+        </Flex>
+        <Buy isOpen={isBuyOpen} onClose={onBuyClose} />
+      </Box>
+      <Box maxW="sm" overflow="hidden">
+        <Flex justifyContent="center">
+          {!nftData.isEmbedded && (
+            <Button colorScheme="blue" onClick={onEmbedderOpen}>
+              Embed
+            </Button>
+          )}
+        </Flex>
+        <Embedder
+          isOpen={isEmbedderOpen}
+          onClose={onEmbedderClose}
+          onEmbed={onEmbed}
+          artworkUrl={window.location.href} // Or any other URL you wish to embed
+        />
       </Box>
     </Box>
   );
