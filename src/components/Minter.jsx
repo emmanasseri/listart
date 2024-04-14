@@ -77,6 +77,7 @@ const Minter = ({ isOpen, onClose }) => {
         royalties,
         ownerContact,
         forSale,
+        isEmbedded: false,
       });
       if (!metadataUri) {
         console.error("Failed to upload metadata to IPFS");

@@ -7,12 +7,29 @@ import {
   Stack,
   Heading,
   useToast,
+  Flex,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { Client, convertHexToString } from "xrpl";
+import Embedder from "./Embedder";
 
 const ArtListing = ({ tokenId, tokenOwner }) => {
+  const {
+    isOpen: isEmbedderOpen,
+    onOpen: onEmbedderOpen,
+    onClose: onEmbedderClose,
+  } = useDisclosure();
+
   const [nftData, setNftData] = useState(null);
   const toast = useToast();
+
+  const onEmbed = (artworkUrl) => {
+    console.log(`Embedding the artwork URL: ${artworkUrl}`);
+    // Here you would invoke the NFC tag writing process using the artwork URL
+    // Since this is a mock function, it just logs to the console for now
+  };
+
   const getImageUrl = async (imageUrl) => {
     const tempUrl = new URL(imageUrl);
     const ipfsHash = tempUrl.pathname.split("/ipfs/")[1];
@@ -49,6 +66,7 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
 
         const metadata = await metadataResponse.json();
         console.log("ipfshash: ", metadata.image);
+        console.log("isEmbedded: ", metadata.isEmbedded);
         const imageUrl = await getImageUrl(metadata.image);
 
         setNftData({
@@ -93,6 +111,21 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
       m={7}
       p={5}
     >
+      <Box maxW="sm" overflow="hidden" m={7} p={5}>
+        <Flex justifyContent="center" mt={4}>
+          {!nftData.isEmbedded && (
+            <Button colorScheme="blue" onClick={onEmbedderOpen}>
+              Embed This Work
+            </Button>
+          )}
+        </Flex>
+        <Embedder
+          isOpen={isEmbedderOpen}
+          onClose={onEmbedderClose}
+          onEmbed={onEmbed}
+          artworkUrl={window.location.href} // Or any other URL you wish to embed
+        />
+      </Box>
       <Image src={nftData.imageUrl} alt={`Image of ${nftData.title}`} />
       <Box p="6">
         <Box display="flex" alignItems="baseline">
