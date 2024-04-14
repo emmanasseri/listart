@@ -77,7 +77,14 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
   }
 
   return (
-    <Box maxW="sm" borderWidth="1px" borderRadius="lg" overflow="hidden" p={5}>
+    <Box
+      maxW="sm"
+      borderWidth="2px"
+      borderRadius="lg"
+      overflow="hidden"
+      m={7}
+      p={5}
+    >
       <Image src={nftData.imageUrl} alt={`Image of ${nftData.title}`} />
       <Box p="6">
         <Box display="flex" alignItems="baseline">

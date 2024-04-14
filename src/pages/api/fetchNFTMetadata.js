@@ -28,6 +28,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
+    console.log("Successfully fetched IPFS data:", data);
     res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching IPFS data:", error);

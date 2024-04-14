@@ -61,6 +61,7 @@ const Minter = ({ isOpen, onClose }) => {
     try {
       // Upload the image to IPFS and get the URI
       const imageUri = await uploadImageToIPFS(file);
+      console.log("imageUri after upload: ", imageUri);
       if (!imageUri) {
         console.error("Failed to upload image to IPFS");
         return;
@@ -264,6 +265,10 @@ const Minter = ({ isOpen, onClose }) => {
     });
 
     const resData = await res.json();
+    console.log(
+      "image url: ",
+      `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`
+    );
     return `https://gateway.pinata.cloud/ipfs/${resData.IpfsHash}`;
   };
 
