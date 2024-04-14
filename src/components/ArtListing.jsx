@@ -54,7 +54,7 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
         setNftData({
           imageUrl: imageUrl,
           title: metadata.title,
-          artistNames: metadata.artists,
+          artist: metadata.artist,
           medium: metadata.medium,
           description: metadata.description,
           cost: metadata.cost,
@@ -113,7 +113,7 @@ const ArtListing = ({ tokenId, tokenOwner }) => {
         <Heading size="md" my="2">
           {nftData.title}
         </Heading>
-        <Text fontWeight="bold">{nftData.artistNames.join(", ")}</Text>
+        <Text fontWeight="bold">{nftData.artist}</Text>
         <Text mt="2">{nftData.description}</Text>
         <Text mt="2">Owned by {nftData.owner}</Text>
         <Stack

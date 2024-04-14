@@ -32,7 +32,7 @@ const isMobile = () => {
 const Minter = ({ isOpen, onClose }) => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
-  const [artists, setArtists] = useState([]);
+  const [artist, setArtist] = useState([]);
   const [medium, setMedium] = useState("");
   const [description, setDescription] = useState("");
   const [cost, setCost] = useState(0);
@@ -70,7 +70,7 @@ const Minter = ({ isOpen, onClose }) => {
       // Create and upload metadata including the image URI
       const metadataUri = await createAndUploadMetadata(imageUri, {
         title,
-        artists: artists.split(", "), // Converts comma-separated string to array
+        artist,
         medium,
         description,
         cost,
@@ -338,9 +338,9 @@ const Minter = ({ isOpen, onClose }) => {
                 onChange={(e) => setTitle(e.target.value)}
               />
               <Input
-                placeholder="Artist Names (comma separated)"
-                value={artists}
-                onChange={(e) => setArtists(e.target.value)}
+                placeholder="Artist`s Name"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
               />
               <Input
                 placeholder="Medium"
@@ -382,7 +382,7 @@ const Minter = ({ isOpen, onClose }) => {
               </FormControl>
               <Button
                 colorScheme="blue"
-                isDisabled={!file || !title || !artists}
+                isDisabled={!file || !title || !artist}
                 onClick={temporaryHandleMintNFT}
               >
                 Begin Mint
