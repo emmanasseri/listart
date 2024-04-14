@@ -126,9 +126,8 @@ const Minter = ({ isOpen, onClose }) => {
         });
         setTimeout(() => {
           // router.push(`/listing/?tokenID=${nftokenId}&tokenOwner=${ownerAddress}`);
-          router.push(
-            `/listing/?tokenID=${nftokenId}&tokenOwner=${ownerAddress}`
-          );
+
+          router.push(`/listing/?TID=${nftokenId}&OWN=${ownerAddress}`);
         }, 1000); // 10000 milliseconds = 10 seconds
       }
     } catch (error) {
