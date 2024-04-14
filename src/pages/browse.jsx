@@ -4,6 +4,35 @@ import ArtListing from "../components/ArtListing";
 
 const Browse = () => {
   const [artListings, setArtListings] = useState([]);
+  // Example call within the Browse component or wherever needed
+  const fetchMetadata = async (ipfsHash) => {
+    try {
+      const response = await fetch(
+        `/api/fetchNFTMetadata?ipfsHash=${ipfsHash}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch metadata.");
+      }
+      const metadata = await response.json();
+      return metadata;
+    } catch (error) {
+      console.error("Error fetching metadata:", error);
+    }
+  };
+  // Fetching an image blob from the API
+  const fetchImage = async (ipfsHash) => {
+    try {
+      const response = await fetch(
+        `/api/fetchNFTMetadata?ipfsHash=${ipfsHash}&contentType=image`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch image.");
+      }
+      return URL.createObjectURL(await response.blob());
+    } catch (error) {
+      console.error("Error fetching image:", error);
+    }
+  };
 
   useEffect(() => {
     // Simulate fetching data

@@ -26,7 +26,7 @@ const Embedder = ({ isOpen, onClose, artworkUrl }) => {
         <ModalHeader>Embed This Work</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <VStack spacing={4}>
+          <VStack spacing={4} justifyContent={"center"}>
             {/* Step 1 */}
             <Text fontSize="lg" fontWeight="bold">
               Step One: Click the button below to copy this URL
@@ -73,7 +73,7 @@ const Embedder = ({ isOpen, onClose, artworkUrl }) => {
               src="/tutorial_images/step4.jpeg"
               alt="Click the Write Button"
             />
-            <Arrow />
+
             <Arrow />
             {/* Step 5 */}
             <Text fontSize="lg" fontWeight="bold">
@@ -81,7 +81,7 @@ const Embedder = ({ isOpen, onClose, artworkUrl }) => {
             </Text>
             <Image src="/tutorial_images/step5.jpeg" alt="Click Add a Record" />
             <Arrow />
-            <Arrow />
+
             {/* Step 6 */}
             <Text fontSize="lg" fontWeight="bold">
               Step Six: Click URL / URI
@@ -98,6 +98,9 @@ const Embedder = ({ isOpen, onClose, artworkUrl }) => {
             </Text>
             <Image src="/tutorial_images/step8.jpeg" alt="Click OK" />
             <Arrow />
+            <Text fontSize="lg" fontWeight="bold">
+              Step Nine: Hold your phone up to a blank NFC tag to embed your URL
+            </Text>
           </VStack>
         </ModalBody>
       </ModalContent>
