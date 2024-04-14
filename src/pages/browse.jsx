@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { SimpleGrid } from "@chakra-ui/react";
+import { SimpleGrid, Text } from "@chakra-ui/react";
 import ArtListing from "../components/ArtListing";
 
 const Browse = () => {
