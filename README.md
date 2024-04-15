@@ -10,7 +10,9 @@ View the deployment [here.](https://listart.vercel.app/)
 
 View an example tokenized art listing [here.](https://listart.vercel.app/listing?TID=000300007D3AB4943723FD7BC3DE7F9AB8A2B31569476690B4E593A20059D307&OWN=rUR98uNXBRcqgVpy1fDBSwBqbYFNWnriQJ)
 
-View the HackKU [Devpost](https://devpost.com/software/listart)
+View the HackKU Devpost [here](https://devpost.com/software/listart).
+
+View an extremely sleep deprived demo video that I made at 5am [here](https://www.youtube.com/watch?v=5C2hr5lEy5E).
 
 ## What it does
 
