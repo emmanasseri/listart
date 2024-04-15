@@ -1,11 +1,16 @@
 ☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟  ☀️  🌙  ☁  🌟
 # About this project
 
-Listart was built during HackKU 2024. 
+Listart was built during [HackKU 2024](https://hackku.org/). 
+It won 
+-- 1st prize on the General Track 
+-- Best use of XRPL 
 
 View the deployment [here.](https://listart.vercel.app/)
 
 View an example tokenized art listing [here.](https://listart.vercel.app/listing?TID=000300007D3AB4943723FD7BC3DE7F9AB8A2B31569476690B4E593A20059D307&OWN=rUR98uNXBRcqgVpy1fDBSwBqbYFNWnriQJ)
+
+View the HackKU [Devpost](https://devpost.com/software/listart)
 
 ## What it does
 
