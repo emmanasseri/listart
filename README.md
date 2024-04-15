@@ -3,8 +3,8 @@
 
 Listart was built during [HackKU 2024](https://hackku.org/). 
 It won 
--- 1st prize on the General Track 
--- Best use of XRPL 
+- 1st prize on the General Track 
+- Best use of XRPL 
 
 View the deployment [here.](https://listart.vercel.app/)
 
